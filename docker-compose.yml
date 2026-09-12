@@ -1,0 +1,11 @@
+services:
+  netmon:
+    build: ./backend
+    container_name: netmon
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - ./backend/netmon.db:/app/netmon.db
+    restart: unless-stopped

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NetMon Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 2rem;
+        }
+        h1 {
+            color: #ff6b9d;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            color: #ff6b9d;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        tr:hover {
+            background: #25253d;
+        }
+        button {
+            background: #ff6b9d;
+            color: #1a1a2e;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌸 NetMon Dashboard</h1>
+    <button onclick="scanNow()">Scan Network</button>
+    <table id="devices">
+        <thead>
+            <tr>
+                <th>IP Address</th>
+                <th>MAC Address</th>
+                <th>Vendor</th>
+                <th>First Seen</th>
+                <th>Last Seen</th>
+            </tr>
+        </thead>
+        <tbody id="devices-body"></tbody>
+    </table>
+
+    <script>
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+        }
+
+        async function loadDevices() {
+            const res = await fetch('/devices');
+            const data = await res.json();
+            const tbody = document.getElementById('devices-body');
+            tbody.innerHTML = '';
+            data.forEach(d => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${d.ip_address}</td>
+                    <td>${d.mac_address}</td>
+                    <td>${d.vendor}</td>
+                    <td>${formatDate(d.first_seen)}</td>
+                    <td>${formatDate(d.last_seen)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        async function scanNow() {
+            await fetch('/scan', { method: 'POST' });
+            loadDevices();
+        }
+
+        loadDevices();
+    </script>
+</body>
+</html>  
